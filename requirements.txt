@@ -1,0 +1,10 @@
+accelerate
+datasets
+transformers
+peft
+attrdict
+deepspeed
+tensorboardX
+tqdm
+trl
+scikit-learn
