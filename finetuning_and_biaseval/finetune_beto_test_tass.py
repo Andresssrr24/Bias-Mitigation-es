@@ -26,7 +26,7 @@ lambda_dr = 0.01
 lambda_svdr = 0.01
 
 # Map labels
-#label2id = {'N': 0, 'P': 1, 'NEU': 2}
+label2id = {'SUBJ': 0, 'OBJ': 1}
 
 # Preprocess function
 def preprocess_function(examples):
@@ -135,9 +135,14 @@ if __name__ == "__main__":
     # Load dataset
     dataset = load_dataset('csv', data_files={
         'train': f'/content/{DATASET_NAME}/train.tsv',
-        'validation': f'/content/{DATASET_NAME}/dev.tsv'
+        'validation': f'/content/{DATASET_NAME}/val.tsv'
         }, delimiter="\t" )
-   
+    
+    def encode_labels(example):
+        example['label'] = label2id[example['label']]
+        return example
+    
+    dataset = dataset.map(encode_labels)    
     train_dataset = dataset["train"]
     val_dataset = dataset["validation"]
 
