@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 
 # Configuration variables
-last_hidden_features_dir = '/path/to/last_hidden_features'  # Path to pre-saved features and labels
+last_hidden_features_dir = './last_hidden_features'  # Path to pre-saved features and labels
 output_dir = './output'                                     # Output directory for the plot
 step = 'final'                                              # Step name for loading files
 

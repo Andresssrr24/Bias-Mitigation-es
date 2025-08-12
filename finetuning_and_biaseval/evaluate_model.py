@@ -4,6 +4,8 @@ from torch.utils.data import DataLoader
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from tqdm import tqdm
 from datasets import load_dataset
+import numpy as np
+
 
 MODEL_PATH = './fine_tuned_model'
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -23,7 +25,7 @@ model.eval()
 
 # Cargar dataset y preprocesar
 val_dataset = load_dataset('csv', data_files={'validation': f'/content/{DATASET_NAME}/val.tsv'}, delimiter="\t")
-val_dataset = val_dataset['validation']  # Seleccionar el split
+val_dataset = val_dataset['validation'] # Seleccionar el split
 
 def encode_labels(example):
         example['label'] = label2id[example['label']]
@@ -43,7 +45,7 @@ labels = []
 
 with torch.no_grad():
     for batch in tqdm(val_loader):
-        input_ids = batch['input_ids'].to(DEVICE)  # Ahora son tensores, no listas
+        input_ids = batch['input_ids'].to(DEVICE)
         att_mask = batch['attention_mask'].to(DEVICE)
         label = batch['label'].cpu().numpy()
 
@@ -53,4 +55,7 @@ with torch.no_grad():
         preds.append(pred)
         labels.append(label)
 
-print(classification_report(labels, preds, target_names=[0, 1]))
+labels = np.concatenate(labels)
+preds = np.concatenate(preds)
+
+print(classification_report(labels, preds, target_names=['SUBJ', 'OBJ']))

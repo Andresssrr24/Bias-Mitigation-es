@@ -15,15 +15,15 @@ from peft import LoraConfig, get_peft_model  # Import LoRA utilities
 MODEL_PATH = "dccuchile/bert-base-spanish-wwm-uncased"
 FINETUNED_MODEL_PATH = "./fine_tuned_model"
 DATASET_NAME = "dataset"
-SAVE_LAST_LABELS_AND_FEATURES = False
+SAVE_LAST_LABELS_AND_FEATURES = True
 EPOCHS = 1
 BATCH_SIZE = 32
 LEARNING_RATE = 5e-5
 WEIGHT_DECAY = 0.01
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 lambda_cr = 0.1
-lambda_dr = 0.01
-lambda_svdr = 0.01
+lambda_dr = 0.06
+lambda_svdr = 0.005
 
 # Map labels
 label2id = {'SUBJ': 0, 'OBJ': 1}
