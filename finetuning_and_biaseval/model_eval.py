@@ -1,22 +1,24 @@
-'''Moodel evaluation with cured sentences'''
+'''Model evaluation with cured sentences'''
 import torch
 from transformers import (
     AutoTokenizer,
     AutoModelForSequenceClassification,
-    TrainingArguments,
-    Trainer,
 )
-from peft import PeftModel
+from peft import PeftModel, PeftConfig
 
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-BASE_MODEL = "dccuchile/bert-base-spanish-wwm-cased"
-ADAPTER_PATH = "./fine_tuned_model"
+ADAPTER_PATH = "/content/fine_tuned_model"
 
-model = AutoModelForSequenceClassification.from_pretrained(BASE_MODEL, num_label=2)
-model = PeftModel.from_pretrained(model, ADAPTER_PATH)
-
-tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL)
+# Adapter configuration
+peft_config = PeftConfig.from_pretrained(ADAPTER_PATH)
+base_model = AutoModelForSequenceClassification.from_pretrained(
+    peft_config.base_model_name_or_path,
+    num_labels=2
+)
+# fine-tuned model and tookenizer
+model = PeftModel.from_pretrained(base_model, ADAPTER_PATH)
+tokenizer = AutoTokenizer.from_pretrained(peft_config.base_model_name_or_path)
 
 model.to(DEVICE)
 model.eval()
@@ -63,8 +65,14 @@ def classify_text(model, tokenizer, text):
         truncation=True,
         max_length=128).to(DEVICE)
     outputs = model(**inputs)
+    print("Logits:", outputs.logits.detach().cpu().numpy())
     pred = torch.argmax(outputs.logits, dim=1).item()
-    return "SUBJ" if pred == 1 else "OBJ"
+    if pred == 1:
+      return "SUBJ"
+    elif pred == 0:
+      return "OBJ"
+    else:
+      return 'NONE'
 
 for sent, expected in test_sentences:
     pred = classify_text(model, tokenizer, sent)
